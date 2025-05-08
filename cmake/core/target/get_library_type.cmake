@@ -1,0 +1,7 @@
+function(get_library_type OUTPUT_VARIABLE)
+    if(BUILD_SHARED_LIBS)
+        set(${OUTPUT_VARIABLE} SHARED PARENT_SCOPE)
+    else()
+        set(${OUTPUT_VARIABLE} STATIC PARENT_SCOPE)
+    endif()
+endfunction()
