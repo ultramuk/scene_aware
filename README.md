@@ -1,33 +1,51 @@
-# project_template
-A modern, modular, and reusable C++ project template using CMake.
-Designed to support scalable development, automated dependency management, and platform-specific builds.
+# CrashNet: Real-Time Vehicle Accident Detection System
+CrashNet is a real-time vehicle accident detection system built on deep learning and GPU-accelerated inference.
+It integrates YOLOv8-based training, ONNX export, TensorRT optimization, and a C++ runtime engine for ultra-fast deployment.
 
-## Overview
-This template provides:
-- Modular project structure
-- Automated external dependency management
-- Platform-aware source selection (e.g. MSVC vs GCC)
-- Unit test integration with GoogleTest
-- Script system for initialization and automation
-- Reusable CMake functions for libraries, applications, and tests
-- Configurable static/shared library builds
+## Features
+- Detects vehicle accidents (crash, collision) from dashcam footage
+- Supports public datasets (e.g., DAD: Dashcam Accident Dataset)
+- Built with YOLOv8 and Ultralytics framework
+- Converts PyTorch → ONNX → TensorRT engine for GPU optimization
+- Real-time inference using C++ + TensorRT + OpenCV
+- Modular structure for dataset prep, training, and deployment
 
 ## directory structure
 ```
-project-root/
-├── applications/         # Executable applications
-├── libraries/            # Reusable internal libraries
-├── externals/            # External packages (e.g. GoogleTest)
-├── scripts/              # Initialization & automation scripts
-│   ├── executable/       # Runnable scripts
-│   └── features/         # Reusable script modules
-├── cmake/                # Common CMake functions & modules
-└── CMakeLists.txt        # Root CMake configuration
+CrashNet/
+├── datasets/              # Public datasets (not in Git)
+│   └── DAD/
+│       ├── images/train/
+│       ├── labels/train/
+│       └── data.yaml
+├── models/                # Trained & exported models
+│   ├── yolov8_accident.pt
+│   ├── yolov8_accident.onnx
+│   └── yolov8_accident.trt
+├── scripts/
+│   ├── executable/
+│   │   ├── train_yolov8.py
+│   │   ├── export_onnx.py
+│   │   └── convert_dad_json_to_yolo.py
+│   └── features/
+│       └── yolov8_utils.py
+├── libraries/
+│   └── inference/         # C++ inference module (TensorRT)
+├── applications/
+│   └── crashnet/          # Main application (C++ + OpenCV)
+├── cmake/
+│   └── FindTensorRT.cmake
+└── CMakeLists.txt
 ```
 
 ## Requirements
 - CMake ≥ 3.15
 - C++17-compatible compiler (GCC, Clang, MSVC)
+- Python ≥ 3.8
+- PyTorch, Ultralytics (YOLOv8)
+- OpenCV (Python + C++)
+- TensorRT
+- FFmpeg
 - Git
 - Bash (for scripts)
 
