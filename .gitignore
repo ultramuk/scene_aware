@@ -37,3 +37,10 @@ install/*
 
 # Vscode
 .vscode
+
+# Model
+datasets/*
+models/*
+*.pt
+*.onnx
+*.trt
