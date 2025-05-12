@@ -40,7 +40,11 @@ install/*
 
 # Model
 datasets/*
-models/*
+runs/*
 *.pt
 *.onnx
 *.trt
+
+# Python Env
+.venv/
+__pycache__/
