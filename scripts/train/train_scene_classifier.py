@@ -19,7 +19,7 @@ parser.add_argument('--epochs', type=int, default=10)
 parser.add_argument('--batch_size', type=int, default=16)
 parser.add_argument('--lr', type=float, default=1e-4)
 parser.add_argument('--num_workers', type=int, default=4)
-parser.add_argument('--output', type=str, default='scene_classifier.pt')
+parser.add_argument('--output', type=str, default='model/scene_classifier.pt')
 args = parser.parse_args()
 
 # -------------------------------
@@ -50,7 +50,7 @@ val_dataset = datasets.ImageFolder(args.val_dir, transform=transform_val)
 train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
                           shuffle=True, num_workers=args.num_workers)
 val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
-                        shuffle=False, num_workers=args.num_workser)
+                        shuffle=False, num_workers=args.num_workers)
 
 # 클래스 수 자동 추출
 num_classes = len(train_dataset.classes)
@@ -88,7 +88,7 @@ for epoch in range(args.epochs):
         inputs, labels = inputs.to(device), labels.to(device)
 
         optimizer.zero_grad()
-        outputs = model(input)
+        outputs = model(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
@@ -119,6 +119,8 @@ for epoch in range(args.epochs):
     val_acc = val_correct / val_total
 
     print(f"[Epoch {epoch+1}] Loss: {avg_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}")
+
+    os.makedirs(os.path.dirname(args.output), exist_ok=True)
 
     # 가장 정확도 높은 모델 저장
     if val_acc > best_val_acc:
