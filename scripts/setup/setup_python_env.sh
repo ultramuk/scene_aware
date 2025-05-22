@@ -7,4 +7,9 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install ultralytics opencv-python
 
-pip freeze > requirements.txt
+# CUDA 11.4 (안정적)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu114
+# CPU-only (GPU 없이)
+#pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+# pip freeze > requirements.txt
