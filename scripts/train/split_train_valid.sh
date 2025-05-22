@@ -1,42 +1,43 @@
 #!/bin/bash
 
-# CrashNet: Shell script to split YOLOv8-style dataset into train/valid
-# Target directory: datasets/roboflow_accident/train/
-# Will move 20% of images + labels into valid/
+# SceneAware: Shell script to split ImageFolder-style dataset into train/valid
+# Input directory: datasets/train/
+# Output directory: datasets/sceneaware_small/
+# Will copy 20% of images in each class folder to val/
 
-BASE_DIR="datasets/roboflow_accident"
-TRAIN_DIR="$BASE_DIR/train"
-VALID_DIR="$BASE_DIR/valid"
-SPLIT_RATIO=0.2
+SRC_DIR="datasets/train"
+DEST_DIR="datasets/sceneaware_small"
+VAL_RATIO=0.2
 
-# Create valid directories if not exist
-mkdir -p "$VALID_DIR/images"
-mkdir -p "$VALID_DIR/labels"
+echo "Source: $SRC_DIR"
+echo "Target: $DEST_DIR"
 
-# Get all image filenames (no extension)
-mapfile -t IMAGE_FILES < <(find "$TRAIN_DIR/images" -type f \( -iname '*.jpg' -o -iname '*.png' \) -printf "%f\n")
+for class in "$SRC_DIR"/*; do
+    if [[ -d "$class" ]]; then
+        class_name=$(basename "$class")
+        echo "Processing class: $class_name"
 
-TOTAL=${#IMAGE_FILES[@]}
-NUM_VALID=$(printf "%.0f" "$(echo "$TOTAL * $SPLIT_RATIO" | bc)")
+        mkdir -p "$DEST_DIR/train/$class_name"
+        mkdir -p "$DEST_DIR/val/$class_name"
 
-echo "Total images: $TOTAL"
-echo "Moving $NUM_VALID images to validation set..."
+        # Get list of all image files in the class directory
+        mapfile -t images < <(find "$class" -type f -iname '*.jpg')
 
-# Shuffle and select subset
-SELECTED=($(printf "%s\n" "${IMAGE_FILES[@]}" | shuf -n $NUM_VALID))
+        total=${#images[@]}
+        num_val=$(printf "%.0f" "$(echo "$total * $VAL_RATIO" | bc)")
 
-for IMAGE in "${SELECTED[@]}"; do
-    BASENAME="${IMAGE%.*}"
-    EXT="${IMAGE##*.}"
+        echo "   Total images: $total, Moving to val: $num_val"
 
-    IMG_PATH="$TRAIN_DIR/images/$BASENAME.$EXT"
-    LABEL_PATH="$TRAIN_DIR/labels/$BASENAME.txt"
+        selected=($(printf "%s\n" "${images[@]}" | shuf -n $num_val))
 
-    if [[ -f "$IMG_PATH" && -f "$LABEL_PATH" ]]; then
-        mv "$IMG_PATH" "$VALID_DIR/images/"
-        mv "$LABEL_PATH" "$VALID_DIR/labels/"
-    else
-        echo "⚠️ Missing pair for $BASENAME — skipping."
+        for image in "${images[@]}"; do
+            filename=$(basename "$image")
+            if printf '%s\n' "${selected[@]}" | grep -q "$filename"; then
+                cp "$image" "$DEST_DIR/val/$class_name/$filename"
+            else
+                cp "$image" "$DEST_DIR/train/$class_name/$filename"
+            fi
+        done
     fi
 done
 
