@@ -55,3 +55,16 @@ val_loader = DataLoader(val_dataset, batch_size=args.batch_size,
 # 클래스 수 자동 추출
 num_classes = len(train_dataset.classes)
 print(f"Detected {num_classes} classes: {train_dataset.classes}")
+
+# -------------------------------
+# 3. 모델 구성 (전이학습 기반)
+# -------------------------------
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# 사전학습된 ResNet18 불러오기
+model = models.resnet18(pretrained=True)
+
+# 마지막 FC layer 교체 (클래스 수에 맞게)
+model.fc = nn.Linear(model.fc.in_features, num_classes)
+model = model.to(device)
+
