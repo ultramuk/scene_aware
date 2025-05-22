@@ -68,3 +68,62 @@ model = models.resnet18(pretrained=True)
 model.fc = nn.Linear(model.fc.in_features, num_classes)
 model = model.to(device)
 
+# -------------------------------
+# 4. Loss, Optimizer 설정
+# -------------------------------
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+
+# -------------------------------
+# 5. 학습 루프
+# -------------------------------
+best_val_acc = 0.0
+for epoch in range(args.epochs):
+    model.train()
+    total_loss = 0.0
+    correct = 0
+    total = 0
+
+    for inputs, labels in tqdm(train_loader, desc=f"[Epoch {epoch+1}] Training"):
+        inputs, labels = inputs.to(device), labels.to(device)
+
+        optimizer.zero_grad()
+        outputs = model(input)
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+        preds = outputs.argmax(dim=1)
+        correct += (preds == labels).sum().item()
+        total += labels.size(0)
+
+    train_acc = correct / total
+    avg_loss = total_loss / len(train_loader)
+
+    # -------------------------------
+    # 검증 루프
+    # -------------------------------
+    model.eval()
+    val_correct = 0
+    val_total = 0
+
+    with torch.no_grad():
+        for inputs, labels in tqdm(val_loader, desc=f"[Epoch {epoch+1}] Validation"):
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            preds = outputs.argmax(dim=1)
+            val_correct += (preds == labels).sum().item()
+            val_total += labels.size(0)
+
+    val_acc = val_correct / val_total
+
+    print(f"[Epoch {epoch+1}] Loss: {avg_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}")
+
+    # 가장 정확도 높은 모델 저장
+    if val_acc > best_val_acc:
+        best_val_acc = val_acc
+        torch.save(model.state_dict(), args.output)
+        print(f"Saved best model to {args.output}")
+
+print("Training complete.")
