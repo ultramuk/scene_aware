@@ -5,49 +5,59 @@ import argparse
 import subprocess
 import onnx
 
-def is_static_onnx(onnx_path):
+
+def extract_input_info(onnx_path):
     """
-    Check if ONNX model has fully static input shapes.
-    Returns True if all input dimensions are fixed integers.
+    Return input tensor name, shape, and whether it is dynamic.
     """
     model = onnx.load(onnx_path)
-    for input_tensor in model.graph.input:
-        shape = input_tensor.type.tensor_type.shape
-        for dim in shape.dim:
-            if dim.dim_param or dim.dim_value == 0:
-                return False
-    return True
+    input_tensor = model.graph.input[0]
+    name = input_tensor.name
+    shape_proto = input_tensor.type.tensor_type.shape
 
-def build_tensorrt_engine(onnx_path, output_dir='exports', imgsz=640, use_fp16=True, workspace=2048):
+    shape = []
+    is_dynamic = False
+    for dim in shape_proto.dim:
+        if dim.dim_param or dim.dim_value == 0:
+            shape.append(-1)  # dynamic
+            is_dynamic = True
+        else:
+            shape.append(dim.dim_value)
+    return name, shape, is_dynamic
+
+
+def build_tensorrt_engine(onnx_path, output_dir='exports', use_fp16=True, workspace=2048):
     assert os.path.exists(onnx_path), f"ONNX model not found: {onnx_path}"
     os.makedirs(output_dir, exist_ok=True)
 
     engine_name = os.path.splitext(os.path.basename(onnx_path))[0] + '.engine'
     engine_path = os.path.join(output_dir, engine_name)
 
-    is_static = is_static_onnx(onnx_path)
+    input_name, input_shape, is_dynamic = extract_input_info(onnx_path)
 
-    print(f"\n🚀 Building TensorRT engine:")
+    print(f"Building TensorRT engine:")
     print(f"  ONNX model     : {onnx_path}")
+    print(f"  Input tensor   : {input_name} ({'x'.join(map(str, input_shape))})")
     print(f"  Output engine  : {engine_path}")
-    print(f"  Mode           : {'STATIC' if is_static else 'DYNAMIC'}")
+    print(f"  Mode           : {'DYNAMIC' if is_dynamic else 'STATIC'}")
     print(f"  Precision      : {'FP16' if use_fp16 else 'FP32'}")
     print(f"  Workspace      : {workspace} MiB\n")
 
-    # Base command
     command = [
         'trtexec',
+        f'--skipInference',
         f'--onnx={onnx_path}',
         f'--saveEngine={engine_path}',
         f'--memPoolSize=workspace:{workspace}',
     ]
 
-    # Only add --optShapes if model is dynamic
-    if not is_static:
+    # If dynamic, add min/opt/max shapes
+    if is_dynamic:
+        shape_str = 'x'.join([str(dim if dim != -1 else 1) for dim in input_shape])
         command += [
-            f'--minShapes=images:1x3x{imgsz}x{imgsz}',
-            f'--optShapes=images:1x3x{imgsz}x{imgsz}',
-            f'--maxShapes=images:1x3x{imgsz}x{imgsz}',
+            f'--minShapes={input_name}:{shape_str}',
+            f'--optShapes={input_name}:{shape_str}',
+            f'--maxShapes={input_name}:{shape_str}',
         ]
 
     if use_fp16:
@@ -63,11 +73,11 @@ def build_tensorrt_engine(onnx_path, output_dir='exports', imgsz=640, use_fp16=T
         print(f"Return code: {e.returncode}")
         exit(1)
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="CrashNet: Build TensorRT Engine from ONNX")
+    parser = argparse.ArgumentParser(description="Generic: Build TensorRT Engine from ONNX")
     parser.add_argument('--onnx', type=str, required=True, help='Path to ONNX model file')
     parser.add_argument('--output', type=str, default='exports', help='Directory to save TensorRT engine')
-    parser.add_argument('--imgsz', type=int, default=640, help='Input image size (square)')
     parser.add_argument('--fp32', action='store_true', help='Use FP32 instead of FP16')
     parser.add_argument('--workspace', type=int, default=2048, help='GPU memory workspace size in MB')
 
@@ -76,7 +86,19 @@ if __name__ == '__main__':
     build_tensorrt_engine(
         onnx_path=args.onnx,
         output_dir=args.output,
-        imgsz=args.imgsz,
         use_fp16=not args.fp32,
         workspace=args.workspace
     )
+
+### ResNet ###
+# python scripts/train/build_tensorrt_engine.py \
+#   --onnx model/scene_classifier.onnx \
+#   --output model \
+#   --fp32 \
+#   --workspace 4096
+
+### YOLOv8 ###
+# python3 scripts/train/build_tensorrt_engine.py \
+#   --onnx model/yolov8n.onnx \
+#   --output model \
+#   --fp32
