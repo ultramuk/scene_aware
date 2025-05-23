@@ -12,4 +12,6 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 # CPU-only (GPU 없이)
 #pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
+pip install onnx
+
 # pip freeze > requirements.txt
