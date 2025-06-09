@@ -10,10 +10,10 @@ set(CMAKE_VERSION_MINIMUM 3.15)
 cmake_minimum_required(VERSION ${CMAKE_VERSION_MINIMUM})
 
 # Project Meta Information Variable Declaration
-set(PROJECT_NAME project_template)
+set(PROJECT_NAME scene_aware)
 set(PROJECT_VERSION 1.0.0)
-set(PROJECT_DESCRIPTION "A modern modular C++ project template using CMake")
-set(PROJECT_HOMEPAGE_URL "https://github.com/ultramuk/project_template")
+set(PROJECT_DESCRIPTION "real-time vehicle accident detection system built on deep learning and GPU-accelerated inference")
+set(PROJECT_HOMEPAGE_URL "https://github.com/ultramuk/scene_aware")
 
 # Reset the project
 project(
