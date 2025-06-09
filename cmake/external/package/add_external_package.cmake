@@ -12,6 +12,7 @@ function(add_external_package)
         DESCRIPTION
         REPOSITORY_URL
         REPOSITORY_TAG
+        INCLUDE_SUBDIR
     )
     set(multi_value_arguments
         COMPILE_ARGUMENTS
@@ -21,6 +22,10 @@ function(add_external_package)
 
     convert_to_uppercase_with_underscores(${PACKAGE_NAME} PACKAGE_IDENTIFIER)
     set_external_package_paths(${PACKAGE_NAME} ${PACKAGE_IDENTIFIER})
+
+    if(PACKAGE_INCLUDE_SUBDIR)
+        set(${PACKAGE_IDENTIFIER}_INCLUDE_SUBDIR ${PACKAGE_INCLUDE_SUBDIR} CACHE STRING "Include subdirectory for ${PACKAGE_IDENTIFIER}")
+    endif()
 
     check_libraries_exist(${PACKAGE_IDENTIFIER} "${PACKAGE_LIBRARIES}" LIBRARIES_EXIST)
 
@@ -52,6 +57,10 @@ function(add_external_package)
     endif()
 
     foreach(LIBRARY_NAME ${PACKAGE_LIBRARIES})
-        configure_library(${LIBRARY_NAME} ${PACKAGE_IDENTIFIER})
+        if(DEFINED ${PACKAGE_IDENTIFIER}_INCLUDE_SUBDIR)
+            configure_library(${LIBRARY_NAME} ${PACKAGE_IDENTIFIER} INCLUDE_SUBDIR ${${PACKAGE_IDENTIFIER}_INCLUDE_SUBDIR})
+        else()
+            configure_library(${LIBRARY_NAME} ${PACKAGE_IDENTIFIER})
+        endif()
     endforeach()
 endfunction()

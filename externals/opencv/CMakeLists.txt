@@ -14,6 +14,7 @@ add_external_package(
     DESCRIPTION "Open Source Computer Vision Library"
     REPOSITORY_URL "https://github.com/opencv/opencv.git"
     REPOSITORY_TAG "4.5.5"
+    INCLUDE_SUBDIR "opencv4"
     COMPILE_ARGUMENTS
         -D OPENCV_EXTRA_MODULES_PATH=${opencv_contrib_SOURCE_DIR}/modules
         -D CMAKE_BUILD_TYPE=RELEASE
