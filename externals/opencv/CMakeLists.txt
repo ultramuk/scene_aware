@@ -1,3 +1,13 @@
+# Fetch opencv_contrb first
+include(FetchContent)
+FetchContent_Declare(
+    opencv_contrib
+    GIT_REPOSITORY https://github.com/opencv/opencv_contrib.git
+    GIT_TAG 4.5.5
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(opencv_contrib)
+
 add_external_package(
     VERSION 4.5.5
     DESCRIPTION "Open Source Computer Vision Library"
