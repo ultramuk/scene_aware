@@ -4,7 +4,7 @@
 #include <opencv2/core.hpp>
 
 #include "inference/types/types.hpp"
-#include "interface/core/config.hpp"
+#include "inference/core/config.hpp"
 
 namespace interface::core {
 
