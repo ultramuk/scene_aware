@@ -34,8 +34,31 @@ else()
 endif()
 
 # Compiler flag definition
-set(COMPILER_FLAGS_FOR_MSVC /W4 /WX /permissive-)
-set(COMPILER_FLAGS_FOR_GCC -Wall -Wpedantic -Wextra -Werror)
+macro(use_compilation_warning_as_error)
+    if(MSVC)
+        # Only enabled in debug because some old versions of VS STL generate
+        # warnings when compiled in release configuration.
+        add_compile_options($<$<CONFIG:Debug>:/WX>)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        add_compile_options(-Werror)
+    endif()
+endmacro()
+
+if(MSVC)
+    # Only enabled in debug because some old versions of VS STL generate
+    # unreachable code warning when compiled in release configuration.
+    add_compile_options($<$<CONFIG:Debug>:/W4>)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # using regular Clang or AppleClang
+    add_compile_options(-Wall -Wconversion -Wshadow -Werror=conversion -Werror=sign-compare)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    add_compile_options(-Wall -Wconversion -Wshadow -Wextra)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+    # using Intel compiler
+    add_compile_options(-Wall -Wconversion -Wshadow -Wextra -Werror=conversion -fPIC -Wno-deprecated-gpu-targets)
+endif()
 
 # Compiler ID -based conditional processing
 if(NOT COMPILER_FLAGS)
