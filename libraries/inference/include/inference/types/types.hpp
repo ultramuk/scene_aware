@@ -9,7 +9,7 @@ namespace inference::types {
 enum class ObjectClass {
     Accident = 0,
     Construction = 1,
-    None = 2,
+    Normal = 2,
     Police = 3
 };
 
