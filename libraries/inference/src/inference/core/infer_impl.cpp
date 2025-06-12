@@ -70,7 +70,6 @@ std::vector<types::Detection> InferImpl::infer(const cv::Mat& image) {
         for (int i=0; i<output_dims.nbDims; ++i)
             size *= output_dims.d[i];
         output_size_ = size;
-        std::cout << "[DEBUG] output_size_ : " << output_size_ << std::endl;
     }
 
     preprocess(image, static_cast<float*>(buffers_[input_index_]));
@@ -109,10 +108,8 @@ std::vector<types::Detection> InferImpl::postprocess(const std::vector<float>& o
     std::vector<types::Detection> results;
 
     if (output.empty()) return results;
-    std::cout << "[DEBUG]" << output[0] << ", " << output[1] << ", " << output[2] << ", " << output[3] << "\n";
 
     auto probs = softmax(output);
-    std::cout << "[DEBUG]" << probs[0] << ", " << probs[1] << ", " << probs[2] << ", " << probs[3] << "\n";
     auto max_iter = std::max_element(probs.begin(), probs.end());
     int class_id = std::distance(probs.begin(), max_iter);
     float confidence = *max_iter;
