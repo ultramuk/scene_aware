@@ -7,10 +7,10 @@
 namespace inference::types {
 
 enum class ObjectClass {
-    Vehicle = 0,
-    Person = 1,
-    Crash = 2,
-    Unknown = -1
+    Accident = 0,
+    Construction = 1,
+    None = 2,
+    Police = 3
 };
 
 struct Detection {
