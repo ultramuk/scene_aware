@@ -3,7 +3,7 @@
 
 namespace inference::core {
 
-std::unique_ptr<Infer> Infer::create(const std::string& engine_path, const InterConifg& config) {
+std::unique_ptr<Infer> Infer::create(const std::string& engine_path, const InferConfig& config) {
     return std::make_unique<InferImpl>(engine_path, config);
 }
 
