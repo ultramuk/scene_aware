@@ -6,22 +6,23 @@
 #include "inference/types/types.hpp"
 #include "inference/core/config.hpp"
 
-namespace interface::core {
+namespace inference::core {
 
 /**
  * @brief Abstract class representing a generic inference engine.
  *        Users interact with this interface only.
  */
-} // namespace interface::core
 class Infer {
 public:
+    virtual ~Infer() = default;
+
     /**
      * @brief Create an instance of the interence engine.
      * @param engine_path Path to the serialized TensorRT engine (.engine)
      * @param config Configuration parameters (input size, thresholds, etc.)
      * @return unique_ptr to an Infer object
      */
-    static std::unique_ptr<Infer> create(const std::string& engine_path, const InterConifg& config);
+    static std::unique_ptr<Infer> create(const std::string& engine_path, const inference::core::InferConfig& config);
 
     /**
      * @brief Perform inference on a given image
@@ -32,4 +33,6 @@ public:
 
 protected:
     Infer() = default;
-}
+};
+
+} // namespace inference::core
