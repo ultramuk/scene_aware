@@ -71,7 +71,7 @@ python scripts/train/extract_frame.py \
     - 학습 이미지: `datasets/sceneaware_small/train/{class}/*.jpg`
     - 검증 이미지: `datasets/sceneaware_small/val/{class}/*.jpg`
 ```
-./scripts/train/split_train_vaild.sh
+./scripts/train/split_train_valid.sh
 ```
 
 ### 4. 모델 학습 (PyTorch 기반 전이학습)
@@ -98,7 +98,7 @@ python scripts/train/train_scene_classifier.py \
 - **Output**: `model/scene_classifier.onnx`
 
 ```
-python script/train/export_onnx_resnet18.py
+python scripts/train/export_onnx_resnet18.py \
   --pt model/scene_classifier.pt \
   --output model/scene_classifier.onnx \
   --imgsz 224
@@ -153,9 +153,8 @@ cmake --build build
 ```
 
 ### 빌드 출력 경로
-- 실행 파일: `build/applications/scene_aware_main/`
-- 라이브러리: `build/libraries/`
-- 테스트 바이너리: `build/libraries/<module>/test/`
+- 실행 파일: `./build/bin/scene_aware__scene_aware_main`
+- 라이브러리: `build/bin/libraries/`
 
 ## License
 MIT License.
