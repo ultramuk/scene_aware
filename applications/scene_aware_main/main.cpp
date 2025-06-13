@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     inference::core::InferImpl infer("/home/super/workspace/scene_aware/model/scene_classifier.engine", config);
 
     // 유효한 이미지 입력
-    cv::Mat image = cv::imread("/home/super/workspace/scene_aware/datasets/sceneaware_small/val/none/none-0006.jpg");
+    cv::Mat image = cv::imread("/home/super/workspace/scene_aware/datasets/sceneaware_small/val/normal/normal-0006.jpg");
     if(image.empty()) {
         std::cerr << "image empty\n";
     }
