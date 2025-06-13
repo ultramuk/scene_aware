@@ -96,9 +96,3 @@ if __name__ == '__main__':
 #   --output model \
 #   --fp32 \
 #   --workspace 4096
-
-### YOLOv8 ###
-# python3 scripts/train/build_tensorrt_engine.py \
-#   --onnx model/yolov8n.onnx \
-#   --output model \
-#   --fp32
