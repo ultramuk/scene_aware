@@ -1,0 +1,81 @@
+# Doxyfile 설정 (정리 및 최적화됨)
+# 이 파일은 doxygen_parameters.md 가이드를 기반으로 최적화되었습니다.
+
+# ---------------------------------------------------------------------------
+# I. 프로젝트 기본 설정
+# ---------------------------------------------------------------------------
+PROJECT_NAME = "@PROJECT_NAME@"
+PROJECT_NUMBER = "@PROJECT_VERSION@"
+PROJECT_BRIEF = "@PROJECT_DESCRIPTION@"
+OUTPUT_DIRECTORY = "@DOXYGEN_OUTPUT_DIRECTORY@"
+OUTPUT_LANGUAGE = English
+
+# ---------------------------------------------------------------------------
+# II. 소스 입력 및 분석 설정
+# ---------------------------------------------------------------------------
+INPUT = @DOXYGEN_INPUT@
+RECURSIVE = YES
+FILE_PATTERNS = *.cpp *.h *.hpp
+EXCLUDE =
+INPUT_ENCODING = UTF-8
+EXTRACT_ALL = NO
+EXTRACT_PRIVATE = NO
+CPP_CLI_SUPPORT = YES
+
+# ---------------------------------------------------------------------------
+# III. 출력 형식 설정 (HTML & LaTeX)
+# ---------------------------------------------------------------------------
+GENERATE_HTML = YES
+HTML_OUTPUT = html
+GENERATE_TREEVIEW = YES
+GENERATE_LATEX = YES
+LATEX_OUTPUT = latex
+
+# ---------------------------------------------------------------------------
+# IV. 다이어그램 및 그래프 설정 (Graphviz)
+# ---------------------------------------------------------------------------
+HAVE_DOT = YES
+UML_LOOK = YES
+GRAPHICAL_HIERARCHY = YES
+DIRECTORY_GRAPH = YES
+CALL_GRAPH = YES
+CALLER_GRAPH = YES
+MAX_DOT_GRAPH_DEPTH = 5
+DOT_IMAGE_FORMAT = svg
+INTERACTIVE_SVG = YES
+
+# ---------------------------------------------------------------------------
+# V. 경고 및 로깅 설정
+# ---------------------------------------------------------------------------
+QUIET = YES
+WARNINGS = YES
+WARN_IF_UNDOCUMENTED = YES
+WARN_LOGFILE = doxygen-warnings.log
+
+# ---------------------------------------------------------------------------
+# VI. 고급 사용자 정의 설정
+# ---------------------------------------------------------------------------
+IMAGE_PATH =
+INCLUDE_PATH =
+PREDEFINED =
+EXCLUDE_SYMBOLS =
+ALIASES =
+TAGFILES =
+SORT_MEMBER_DOCS = NO
+FULL_PATH_NAMES = YES
+STRIP_FROM_PATH = @PROJECT_SOURCE_DIR@
+
+# ---------------------------------------------------------------------------
+# VII. 특별 목록 생성 옵션
+# ---------------------------------------------------------------------------
+GENERATE_TODOLIST = YES
+GENERATE_TESTLIST = YES
+GENERATE_BUGLIST = YES
+GENERATE_DEPRECATEDLIST= YES
+
+# ---------------------------------------------------------------------------
+# VIII. 소스 브라우징 옵션
+# ---------------------------------------------------------------------------
+SOURCE_BROWSER = YES
+INLINE_SOURCES = YES
+STRIP_CODE_COMMENTS = YES

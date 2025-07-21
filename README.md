@@ -1,164 +1,334 @@
-# SceneAware
-SceneAware는 교통 상황을 인지하는 **Scene-level Calssification 시스템** 입니다.
-비디오에서 장면을 추출하고, 이를 분류하여 교통 사고, 정체, 정상 주행 등의 상황을 실시간으로 감지합니다.
+# Readable Code C++ Project Template
 
-## 프로젝트 특징
-- PyTorch 기반 Scene Classifier 모델 학습
-- ONNX로 변환 후 TensorRT 엔진 생성
-- TensorRT 기반 고성능 C++ 추론 파이프라인
-- GTest 기반 유닛 테스트 환경 구성
-- 실시간 또는 저장된 영상 입력 처리 가능
-- 프로젝트 초기 설정 자동화
+A C++ project template with a focus on readable code, modular CMake, and developer productivity.
 
-## 디렉토리 구조
-```
-SceneAware/
-├── applications/
-│   └── scene_aware_main/            # 최종 실행 프로그램 소스
-├── libraries/
-│   ├── inference/                   # TensorRT 추론 모듈
-│   ├── math/                        # 수학/통계 유틸 함수
-│   ├── string_utils/                # 문자열 처리 유틸
-│   └── utils/                       # 공통 기능 유틸
-├── datasets/
-│   ├── raw_videos/                  # 원본 영상 (class별 폴더로 분류됨)
-│   │   ├── accident/
-│   │   ├── construction/
-│   │   ├── normal/
-│   │   └── police/
-│   ├── sceneaware_small/            # 훈련/검증용 샘플 (train/val로 나뉨)
-│   └── train/                       # 전체 데이터셋 (클래스별 이미지 분할)
-├── scripts/
-│   ├── executable/                  # 전체 초기화 스크립트 (`init.sh`)
-│   ├── features/git/                # git hooks 설정
-│   ├── setup/                       # 파이썬 가상환경 설정
-│   └── train/                       # 학습 / 전처리 / 변환 스크립트
-│       ├── extract_frame.py
-│       ├── split_train_valid.sh
-│       ├── train_scene_classifier.py
-│       ├── export_onnx_resnet18.py
-│       └── build_tensorrt_engine.py
-├── cmake/                           # CMake 모듈 템플릿들
-├── externals/                       # 외부 라이브러리 소스
-├── install/                         # 외부 라이브러리 설치 디렉터리
-├── model/                           # 학습된 모델 및 ONNX, engine 저장 경로
-├── build/                           # CMake 빌드 출력 경로
-└── CMakeLists.txt                   # 최상위 CMake 엔트리
-```
+![license](https://img.shields.io/badge/license-HolyGround%20Custom-blueviolet)
+![language](https://img.shields.io/badge/language-C++20-blue)
+![cmake](https://img.shields.io/badge/language-CMake-orange)
 
-## 전체 워크플로우 (데이터 → 학습 → 추론)
-### 1. 환경 초기화
-```
-./scripts/executable/init.sh
-```
+---
 
-### 2. 영상에서 프레임 추출
-- **설명**: 폴더 디렉토리를 읽어서 각 클래스별 '.h264' 영상을 일정 간격으로 잘라 '.jpg' 이미지 생성
-- **Input**: `datasets/raw_videos`
-- **Output**: `datasets/train/{class}/*.jpg`
+## Overview
 
-```
-python scripts/train/extract_frame.py \
-    --input_root ./datasets/raw_videos \
-    --output_root ./datasets/train \
-    --frame_interval 15
-```
+This project is a comprehensive C++ template designed to kickstart new projects with a clean, maintainable, and scalable structure. It emphasizes "readable code" not just in C++ but also in the build system itself, using a highly modular and modern CMake setup.
 
-### 3. 학습/검증 데이터셋 분할
-- **설명**: 클래스별 이미지 중 80%는 학습용, 20%는 검증용으로 복사
-- **Input**: `datasets/train`
-- **Output**
-    - 학습 이미지: `datasets/sceneaware_small/train/{class}/*.jpg`
-    - 검증 이미지: `datasets/sceneaware_small/val/{class}/*.jpg`
-```
-./scripts/train/split_train_valid.sh
-```
+**Note:** The included source code (`add`, `subtract`) and tests are simple examples intended to demonstrate the template's structure and features. They are meant to be replaced by your own project's code.
 
-### 4. 모델 학습 (PyTorch 기반 전이학습)
-- **설명**: `ResNet18` 사전 학습 모델을 기반으로, **마지막 분류층만 학습하는 전이학습**을 수행
-- **Input**
-    - 학습 이미지: `datasets/sceneaware_small/train/{class}/*.jpg`
-    - 검증 이미지: `datasets/sceneaware_small/val/{class}/*.jpg`
-- **Output**: `model/scene_classifier.pt`
+It comes pre-configured with essential tools for high-quality software development:
 
-```
-python scripts/train/train_scene_classifier.py \
-  --train_dir datasets/sceneaware_small/train \
-  --val_dir datasets/sceneaware_small/val \
-  --epochs 10 \
-  --batch_size 16 \
-  --lr 1e-4 \
-  --num_workers 4 \
-  --output model/scene_classifier.pt
-```
+- **Build Automation**: A powerful, modular CMake build system.
+- **Dependency Management**: Easy integration of external libraries with `FetchContent` and Git submodules.
+- **Testing**: Unit and integration testing with Catch2, CTest, and code coverage with gcovr.
+- **Documentation**: Automatic API documentation generation with Doxygen.
+- **Code Quality**: Enforced code style with `clang-format` and static analysis with `clang-tidy`.
 
-### 5. ONNX 변환
-- **설명**: PyTorch 모델을 ONNX 포맷으로 변환
-- **Input**: `model/scene_classifier.pt`
-- **Output**: `model/scene_classifier.onnx`
+This template is ideal for developers who want to focus on writing code without getting bogged down in the initial setup of a C++ project.
 
-```
-python scripts/train/export_onnx_resnet18.py \
-  --pt model/scene_classifier.pt \
-  --output model/scene_classifier.onnx \
-  --imgsz 224
+---
+
+## Table of Contents
+
+1. [Philosophy and Goals](#1-philosophy-and-goals)
+2. [Features](#2-features)
+3. [Project Structure](#3-project-structure)
+4. [CMake Architecture](#4-cmake-architecture)
+5. [Setup and Installation](#5-setup-and-installation)
+6. [Usage Guide](#6-usage-guide)
+7. [Customization Guide](#7-customization-guide)
+8. [Code Style and Guidelines](#8-code-style-and-guidelines)
+9. [License](#9-license)
+
+---
+
+## 1. Philosophy and Goals
+
+### 1.1 Problem Definition
+
+Starting a new C++ project involves significant boilerplate and configuration. Developers need to set up a build system, integrate testing frameworks, configure code quality tools, and establish a consistent project structure. This process is often time-consuming and error-prone.
+
+### 1.2 Our Approach
+
+This template solves the problem by providing a robust, pre-configured foundation based on these core principles:
+
+- **Readability First**: Code should be easy to read and understand. This applies to C++ source code as well as the CMake build scripts.
+- **Modularity**: The build system is broken down into small, reusable, and self-contained CMake modules. This makes it easy to extend and maintain.
+- **Automation**: Repetitive tasks like testing, formatting, and documentation are automated through simple CMake targets.
+- **Modern Practices**: The template uses modern C++ (C++20) and CMake (3.15+) features and follows target-centric best practices.
+
+---
+
+## 2. Features
+
+| Feature | Description | Tools Used |
+|---|---|---|
+| **Build System** | Modular, target-centric build system. | CMake (3.15+) |
+| **Core Library** | A sample library to demonstrate the project structure, ready to be replaced. | C++20 |
+| **Executables** | Support for multiple executables linked against the core library. | C++20 |
+| **Unit Testing** | Integrated unit and integration testing with automatic test discovery. | Catch2, CTest |
+| **Code Coverage** | Test coverage reports generated automatically. | gcovr |
+| **Code Formatting** | Consistent code style enforced with a single command. | clang-format |
+| **Static Analysis** | Proactive bug detection and code quality checks. | clang-tidy |
+| **Documentation** | Automatic API documentation from source code comments. | Doxygen |
+| **Dependency Management** | Flexible dependency management for external (`FetchContent`) and internal (`Git Submodules`) libraries. | CMake, Git |
+
+---
+
+## 3. Project Structure
+
+The project follows a standard directory layout that separates concerns and promotes modularity.
+
+```bash
+readable-code-cpp-project-template/
+├── assets/                 # Static assets like Doxyfile.in for Doxygen.
+├── cmake/                  # The heart of the build system: modular CMake scripts.
+│   ├── common/             # Utility functions used across modules (e.g., auto-adding subdirectories).
+│   ├── doxygen/            # Doxygen-specific configuration scripts.
+│   ├── interface/          # High-level modules for configuring project components.
+│   ├── library/            # Scripts for library and dependency handling.
+│   ├── project/            # Project-wide configuration scripts.
+│   └── test/               # Test-related configuration scripts.
+├── dependencies/           # External and internal dependencies.
+│   ├── externals/          # External libraries managed by FetchContent. Add a new folder here for each library.
+│   └── internals/          # Dependencies managed as Git Submodules. Add submodules here.
+├── documents/              # Project documentation, guidelines, and templates.
+├── executables/            # Source code for final executables. Can contain loose .cpp files or subdirectories for larger executables.
+├── include/                # Public header files for your library (example provided).
+├── source/                 # Private source files for your library (example provided).
+├── tests/                  # Test source code for your library (example provided).
+├── .clang-format           # Configuration for clang-format.
+├── .clang-tidy             # Configuration for clang-tidy.
+└── CMakeLists.txt          # Top-level CMake entry point.
 ```
 
-### 6. TensorRT 엔진 생성
-- **설명**: ONNX 모델을 최적화된 TensorRT 엔진으로 컴파일
-- **Input**: `model/scene_classifier.onnx`
-- **Output**: `model/scene_classifier.engine`
+---
 
+## 4. CMake Architecture
+
+The build system is designed to be highly modular and easy to understand. The logic is organized into a `cmake/` directory, with a clear separation between high-level "interface" modules and their underlying implementations.
+
+### 4.1 High-Level Interface
+
+The main `CMakeLists.txt` uses simple, declarative functions from `cmake/interface/` to configure the project. This keeps the root `CMakeLists.txt` clean and focused on what the project *is*, not *how* it's built.
+
+| Interface Module | File | Role |
+|---|---|---|
+| `configure_project` | `configure_project.cmake` | Initializes global settings, paths, and compiler flags. |
+| `configure_library` | `configure_library.cmake` | Defines the main library target (`STATIC`, `SHARED`, or `INTERFACE`). |
+| `configure_executable` | `configure_executable.cmake` | Defines an executable target and links it to libraries. |
+| `configure_tests` | `configure_tests.cmake` | Sets up the entire test environment (Catch2, CTest, coverage). |
+| `configure_doxygen` | `configure_doxygen.cmake` | Configures and creates the Doxygen documentation target. |
+| `configure_formatter` | `configure_formatter.cmake` | Creates the `format` target for `clang-format`. |
+| `configure_static_analysis` | `configure_static_analysis.cmake` | Creates the `static_analysis` target for `clang-tidy`. |
+
+### 4.2 Low-Level Modules
+
+The interface modules delegate the actual work to smaller, specialized scripts located in other `cmake/` subdirectories (`project/`, `library/`, `test/`, etc.). This encapsulation makes the system easier to debug and extend. For example, `configure_tests` calls helper scripts in `cmake/test/` to register individual test cases and check code coverage.
+
+This design allows you to easily modify or replace parts of the build process without affecting the entire system. A key feature of this architecture is the automatic discovery of dependencies and executables placed in the `dependencies/` and `executables/` directories, which simplifies project management as it grows.
+
+---
+
+## 5. Setup and Installation
+
+> **Requirements**
+>
+> - A C++20 compliant compiler (e.g., GCC, Clang, MSVC)
+> - CMake 3.15 or higher
+> - Git
+> - `clang-format`, `clang-tidy` (for code quality tools)
+> - `doxygen` (for documentation generation)
+> - `gcovr` (for code coverage reporting)
+>
+> The project includes helper scripts to simplify the installation of these command-line tools.
+
+### Build Instructions
+
+```bash
+# 1. Clone the repository and its submodules
+git clone --recurse-submodules https://github.com/movingChurch/readable-code-cpp-project-template.git
+cd readable-code-cpp-project-template
+
+# If you've already cloned without submodules, run:
+# git submodule update --init --recursive
+
+# 2. Create a build directory and run CMake
+#    (Use -DCMAKE_BUILD_TYPE=Debug for a debug build)
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+
+# 3. Build the project
+# For Linux/macOS with Makefiles
+make -j$(nproc)
+
+# For Windows with Visual Studio
+cmake --build . --config Release
+
+# For other generators (e.g., Ninja)
+ninja
 ```
-python scripts/train/build_tensorrt_engine.py \
-   --onnx model/scene_classifier.onnx \
-   --output model \
-   --fp32 \
-   --workspace 4096
+
+---
+
+## 6. Usage Guide
+
+All commands should be run from the `build` directory.
+
+### 6.1 Running Executables
+
+Executables are placed in the `build/bin` directory.
+
+```bash
+# Run the example executable
+./bin/example__print_math_result
 ```
 
-### 7. C++ 추론 실행
-- **설명**: 
-- **Input**: 
-- **Output**: 
+### 6.2 Running Tests
 
-### 8. 단위 테스트 (Gtest)
+Run all tests using CTest. Test results and coverage reports will be generated.
+
+```bash
+# Run all tests and show output only on failure
+ctest --output-on-failure
+
+# Run tests with a specific label (e.g., all 'integration' tests)
+ctest -L integration
 ```
 
+### 6.3 Code Quality Tools
+
+The template provides targets for formatting and static analysis.
+
+```bash
+# Auto-format all C++ files using .clang-format rules
+make format
+
+# Run static analysis on all sources using .clang-tidy rules
+make static_analysis
 ```
 
-## Requirements
-- CMake ≥ 3.15
-- C++17-compatible compiler (GCC, Clang, MSVC)
-- Python ≥ 3.8
-- PyTorch
-- OpenCV (Python + C++)
-- TensorRT
-- FFmpeg
-- Git
-- Bash (for scripts)
+### 6.4 Generating Documentation
 
-## 빌드 방법
-SceneAware는 CMake 기반의 C++ 프로젝트이며, 동적(shared) 또는 정적(static) 라이브러리로 빌드할 수 있습니다.
+Generate API documentation from Doxygen comments in the source code.
 
-### 기본 빌드 명령어
-```
-# 동적 라이브러리(shared object) 빌드
-cmake -B build -DBUILD_SHARED_LIBS=ON
-cmake --build build
-
-# 정적 라이브러리(static archive) 빌드
-cmake -B build -DBUILD_SHARED_LIBS=OFF
-cmake --build build
+```bash
+# Generate documentation
+make create_documentations
 ```
 
-### 빌드 출력 경로
-- 실행 파일: `./build/bin/scene_aware__scene_aware_main`
-- 라이브러리: `build/bin/libraries/`
+The output will be saved in `build/documents/html`. Open `index.html` to view the documentation.
 
-## License
-MIT License.
+---
 
-## Contact
-For questions for contributions:
-- GitHub: [ultramuk/scene_aware](https://github.com/ultramuk/scene_aware)
+## 7. Customization Guide
+
+This template is designed to be easily adapted to your own project. The build system automatically discovers and configures dependencies and executables placed in their respective directories, minimizing manual `CMakeLists.txt` edits.
+
+### 7.1 Adding a New Executable
+
+There are two ways to add a new executable, depending on its complexity.
+
+#### Method 1: Simple Executable (Single Source File)
+
+For a simple executable consisting of one `.cpp` file, the recommended approach is to add it directly to the root `CMakeLists.txt`.
+
+1. Create a new `.cpp` file in the `executables/` directory (e.g., `my_app.cpp`).
+2. In the root `CMakeLists.txt`, add a `configure_executable` call:
+
+    ```cmake
+    configure_executable(
+      SOURCE executables/my_app.cpp
+      DEPENDENCIES spdlog # Add other dependencies if needed
+    )
+    ```
+
+#### Method 2: Complex Executable (Multiple Source Files)
+
+For a more complex executable with multiple source files, you can give it its own subdirectory and `CMakeLists.txt`. This approach is more scalable and is **automatically detected** by the build system.
+
+1. Create a new subdirectory inside `executables/` (e.g., `executables/my_complex_app`).
+2. Place all source files for this executable inside the new subdirectory.
+3. Create a `CMakeLists.txt` file inside `executables/my_complex_app`.
+4. In this new `CMakeLists.txt`, define your executable target. You can use standard CMake commands or the provided helper functions.
+
+    **Example `executables/my_complex_app/CMakeLists.txt`:**
+
+    ```cmake
+    # Get all source files in the current directory
+    file(GLOB_RECURSE app_sources "*.cpp" "*.h")
+
+    # Use the provided helper function to create the executable
+    configure_executable(
+      SOURCE ${app_sources}
+      DEPENDENCIES spdlog # Add dependencies here
+    )
+    ```
+
+5. **That's it!** You do not need to modify the root `CMakeLists.txt`. The build system will automatically find and configure your new executable when you run CMake.
+
+### 7.2 Managing Dependencies
+
+This template supports two primary methods for managing dependencies: `FetchContent` for most external libraries and `Git Submodules` for tightly coupled or internal dependencies. Both are designed to be automatically discovered.
+
+#### Method 1: FetchContent (Recommended for most external libraries)
+
+This method downloads and builds dependencies as part of the CMake configuration step. It's clean, automatic, and doesn't require developers to manage submodules.
+
+1. Create a new directory in `dependencies/externals/` named after the library (e.g., `fmt`).
+2. Inside that directory, create a `CMakeLists.txt`. You can copy the template from `dependencies/externals/template/CMakeLists.txt`.
+3. Edit the new `CMakeLists.txt` and fill in the `add_external_package` function. You can also pass build options to the dependency, which is useful for disabling its tests or examples.
+
+    **Example for `fmt` library (in `dependencies/externals/fmt/CMakeLists.txt`):**
+
+    ```cmake
+    include(${CMAKE_SOURCE_DIR}/cmake/library/add_external_package.cmake)
+
+    add_external_package(
+      REPOSITORY_URL "https://github.com/fmtlib/fmt.git"
+      REPOSITORY_TAG "10.2.1"
+      LIBRARIES fmt::fmt
+      # You can pass options to the external project's build
+      COMPILE_DEFINITIONS ""
+      COMPILE_OPTIONS ""
+    )
+    ```
+
+4. **That's it!** The build system will automatically find this new directory and configure the dependency.
+5. Finally, add the library target (`fmt::fmt` in this case) to the `DEPENDENCIES` list of your library or executable in the appropriate `CMakeLists.txt` file.
+
+#### Method 2: Git Submodules (For tightly coupled or internal dependencies)
+
+This method keeps a specific commit of a dependency locked within your repository. It's useful when you need precise control over the dependency's version. The build system is configured to **automatically** detect and include any submodules placed in this directory.
+
+1. Add the dependency as a Git submodule in the `dependencies/internals/` directory.
+
+    ```bash
+    git submodule add <repository_url> dependencies/internals/<library_name>
+    ```
+
+2. **That's it!** You do not need to modify any `CMakeLists.txt` files. The build system will automatically find the submodule and make its targets available.
+
+3. Link the dependency to your target in the `configure_executable` or `configure_library` call in the relevant `CMakeLists.txt`.
+
+    ```cmake
+    configure_executable(
+      SOURCE executables/print_math_result.cpp
+      DEPENDENCIES spdlog # The target name from the dependency
+    )
+    ```
+
+---
+
+## 8. Code Style and Guidelines
+
+To maintain consistency, this project follows a set of coding style rules. Please review them before contributing.
+
+- **CMake Style**: See [CMake Coding Style Rules](./documents/guidelines/cmake/coding_styles.md). This document details the conventions for writing clean and maintainable CMake scripts.
+
+---
+
+## 9. License
+
+This project is provided under the **HolyGround Software License Agreement**. Please see the [LICENSE](LICENSE) file for full details.
+
+- **For Non-Commercial Use**: The software is licensed under the terms of the MIT License.
+- **For Commercial Use**: Specific commercial terms apply. Please review the license agreement carefully.
