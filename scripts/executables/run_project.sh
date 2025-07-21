@@ -10,7 +10,7 @@
 #   커스텀 도구 타겟 생성을 실행합니다.
 #
 # Usage:
-#   ./run_project.sh ...
+#   ./run_project.sh
 #
 # ==============================================================================
 
@@ -35,3 +35,5 @@ ctest --verbose
 # 6. 도구 타겟이 실행될 수 있는지 확인 (예: format)
 # 이는 커스텀 도구 타겟이 생성되었는지 확인합니다.
 make format
+make static_analysis
+make create_documentations
