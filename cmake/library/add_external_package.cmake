@@ -9,13 +9,14 @@
 # LIBRARIES (list, optional): List of target names created by the package.
 # COMPILE_OPTIONS (list, optional): List of compile options to apply to the targets.
 # COMPILE_DEFINITIONS (list, optional): List of compile definitions to apply.
+# COMPILE_ARGUMENTS (list, optional): Additional arguments to pass to the package's CMake configuration.
 function(add_external_package)
   # --- Function Start: add_external_package
   get_filename_component(package_name ${CMAKE_CURRENT_LIST_DIR} NAME)
   message(STATUS "[${package_name}] Configuring external package...")
 
   set(one_value_args REPOSITORY_URL REPOSITORY_TAG)
-  set(multi_value_args LIBRARIES COMPILE_OPTIONS COMPILE_DEFINITIONS)
+  set(multi_value_args LIBRARIES COMPILE_OPTIONS COMPILE_DEFINITIONS COMPILE_ARGUMENTS)
   cmake_parse_arguments(PACKAGE "" "${one_value_args}" "${multi_value_args}" ${ARGN})
 
   if(NOT PACKAGE_REPOSITORY_URL OR NOT PACKAGE_REPOSITORY_TAG)
