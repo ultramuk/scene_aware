@@ -12,6 +12,8 @@ project(
   HOMEPAGE_URL "https://github.com/movingChurch/readable-code-cpp-project-template"
 )
 
+find_package(Threads REQUIRED)
+
 # --- Project Options
 option(ENABLE_TESTING "Enable testing" ON)
 
@@ -81,7 +83,7 @@ configure_library(
 # --- Add Executable
 configure_executable(
   SOURCE executables/print_math_result.cpp
-  DEPENDENCIES spdlog
+  DEPENDENCIES spdlog Threads::Threads
 )
 
 # =============================================================================
